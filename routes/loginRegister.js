@@ -5,7 +5,6 @@ router.post('/login', (req, res, next) => {
   const { userId, password, type } = req.body;
 
   if (type === 'teacher') {
-    
     jsonwebtoken.sign("", "", { algorithm: 'HS256' })
   } else {
     jsonwebtoken.sign("", "", { algorithm: 'HS256' })
