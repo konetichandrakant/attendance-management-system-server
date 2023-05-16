@@ -13,4 +13,4 @@ router.get('/:courseId', (req, res) => {
 
 })
 
-export default app;
+module.exports = { teacherRoutes: router };
