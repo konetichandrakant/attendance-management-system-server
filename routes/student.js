@@ -3,23 +3,32 @@ const router = express.Router();
 const { studentDetails, courseDetails } = require('../details');
 
 router.get('/', (req, res) => {
-  const userId = req['userId'];
-  const userDetails = studentDetails(userId);
-  return userDetails ? res.send(userDetails) : res.send(false);
+  const studentId = req['userId'];
+  const studentData = studentDetails(userId);
+  if (!studentData)
+    return res.send(false);
+  res.send({ id: studentId, courses: studentData['courses'] });
 })
 
 router.get('/:courseId', async (req, res) => {
   const { courseId, studentId } = req.params;
-  const course = courseDetails(courseId);
-  const userDetails = studentDetails(studentId);
 
-  if (!course || !userDetails)
+  const teacherId = req['userId'];
+  const courseData = await courseDetails(courseId);
+  const studentData = await studentDetails(studentId);
+
+  if (!courseData || courseData['teacherId'] !== teacherId)
     return res.send(false);
 
-  const attendanceDetails = userDetails['attendanceDetails'];
-  for (let i = 0; i < attendanceDetails.length; i++) {
-    if (attendanceDetails[i]['courseId'] === courseId) {
-      return res.send(attendanceDetails[i]);
+  for (let i = 0; i < courseData['students'].length; i++) {
+    if (courseData['students'][i] === studentId) {
+      return res.send({
+        courseName: courseData['name'],
+        courseYear: courseData['year'],
+        semester: courseData['semester'],
+        studentName: studentData['name'],
+        attendance: courseData['students'][i]['classesAttended']
+      });
     }
   }
   return res.send(false);

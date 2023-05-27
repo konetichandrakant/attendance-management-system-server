@@ -5,10 +5,10 @@ const studentSchema = mongoose.Schema({
   name: { type: String },
   email: { type: String },
   phoneNumber: { type: String },
-  attendanceDetails: [{
-    courseId: { type: String },
-    classesAttended: [{ type: String }],
-  }]
+  courses: {
+    type: [{ type: String }],
+    default: []
+  }
 })
 
 const Student = mongoose.model('StudentDetails', studentSchema);
