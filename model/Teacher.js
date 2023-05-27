@@ -1,14 +1,13 @@
 const mongoose = require('mongoose');
 
 const teacherSchema = mongoose.Schema({
-  password: String,
-  name: String,
-  email: String,
-  phoneNumber: String,
+  password: { type: String },
+  name: { type: String },
+  email: { type: String },
+  phoneNumber: { type: String },
   coursesEnrolled: [{
-    courseId: String,
-    courseName: String,
-    noOfClassesTaken: Number,
+    courseId: { type: String },
+    noOfClassesTaken: { type: Number },
   }]
 })
 
