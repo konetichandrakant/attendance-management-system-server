@@ -9,8 +9,8 @@ const isLoggedIn = (req, res, next) => {
     req['userId'] = user['userId'];
     next();
   } catch (err) {
-    req.cookies.clear('token');
-    return res.send({ loggedIn: false });
+    console.log('not present');
+    return res.send(false);
   }
 }
 

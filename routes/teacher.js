@@ -4,42 +4,30 @@ const router = express.Router();
 const { addCourse, addStudentInCourse, studentDetails, teacherDetails, courseDetails } = require('../details');
 const { isLoggedIn } = require('../logInValidation');
 
-/*
-courseName: String,
-year: Number,
-semester: Number,
-teacherId: String,
-classesTaken: [String],
-students: [{
-  studentId: String,
-  numberOfClassesPresent: Number,
-}]
-*/
-
-router.get('/', isLoggedIn, (req, res) => {
+router.get('/', isLoggedIn, async (req, res) => {
   const teacherId = req['userId'];
-  const teacherData = teacherDetails(teacherId);
+  const teacherData = await teacherDetails(teacherId);
   if (!teacherData)
     return res.send(false);
   res.send({ id: teacherId, courses: teacherData['courses'] });
 })
 
-router.post('/addCourse', isLoggedIn, (req, res) => {
+router.post('/addCourse', isLoggedIn, async (req, res) => {
   const { courseName, year, semester, courseId } = req.body;
   const teacherId = req['userId'];
-  res.send(addCourse(courseId, courseName, semester, year, teacherId))
+  res.send(await addCourse(courseId, courseName, semester, year, teacherId))
 })
 
-router.post('/addStudent', isLoggedIn, (req, res) => {
+router.post('/addStudent', isLoggedIn, async (req, res) => {
   const { courseId, studentId } = req.body;
-  res.send(addStudentInCourse(courseId, studentId))
+  res.send(await addStudentInCourse(courseId, studentId))
 })
 
-router.get('/:courseId', isLoggedIn, (req, res) => {
+router.get('/:courseId', isLoggedIn, async (req, res) => {
   const { courseId } = req.params;
   const teacherId = req['userId'];
 
-  const courseData = courseDetails(courseId);
+  const courseData = await courseDetails(courseId);
 
   if (!courseData || !courseData['teacherId'] !== teacherId)
     return res.send(false);
@@ -62,6 +50,7 @@ router.get('/:courseId/:studentId', isLoggedIn, async (req, res) => {
   const { courseId, studentId } = req.params;
 
   const teacherId = req['userId'];
+
   const courseData = await courseDetails(courseId);
   const studentData = await studentDetails(studentId);
 
@@ -71,11 +60,16 @@ router.get('/:courseId/:studentId', isLoggedIn, async (req, res) => {
   for (let i = 0; i < courseData['students'].length; i++) {
     if (courseData['students'][i] === studentId) {
       return res.send({
+        courseId: courseData['courseId'],
         courseName: courseData['name'],
-        courseYear: courseData['year'],
+        year: courseData['year'],
         semester: courseData['semester'],
+        teacherId: courseData['teacherId'],
+        teacherName: courseData['teacherName'],
         studentName: studentData['name'],
-        attendance: courseData['students'][i]['classesAttended']
+        studentId: studentId,
+        studentAttendance: courseData['students'][i]['classesAttended'],
+        teacherAttendance: courseData['classesTaken']
       });
     }
   }

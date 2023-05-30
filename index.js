@@ -7,13 +7,12 @@ const { teacherRoutes } = require('./routes/teacher');
 const { loginResgiterRoutes } = require('./routes/loginRegister');
 const mongoose = require('mongoose')
 
-const { Student } = require('./model/Student');
-const { Teacher } = require('./model/Teacher');
-
 dotenv.config();
 app.use(express.json());
 
-mongoose.connect(process.env.MONGODB_URL);
+mongoose.connect(process.env.MONGODB_URL)
+  .then(() => { console.log('connected!!') })
+  .catch(() => { console.log('error') });
 
 const PORT = process.env.PORT;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;

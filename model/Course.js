@@ -5,6 +5,7 @@ const courseSchema = mongoose.Schema({
   year: { type: Number, default: '' },
   semester: { type: Number, default: '' },
   teacherId: { type: String, default: '' },
+  teacherName: { type: String, default: '' },
   classesTaken: {
     type: [{ type: String }],
     default: []

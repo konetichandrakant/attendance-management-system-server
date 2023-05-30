@@ -2,6 +2,7 @@ const { Student } = require('./model/Student');
 const { Teacher } = require('./model/Teacher');
 const { Course } = require('./model/Course');
 
+// all get data functions
 const teacherDetails = async (id) => {
   return await Teacher.findById(id);
 }
@@ -14,6 +15,7 @@ const courseDetails = async (id) => {
   return await Course.findById(id);
 }
 
+// all post data functions
 const addCourse = async (courseId, courseName, semester, year, teacherId) => {
   var course = new Course({ _id: courseId, name: courseName, semester: semester, year: year, teacherId: teacherId, classesTaken: [], students: [] });
   await course.save();
@@ -22,11 +24,10 @@ const addCourse = async (courseId, courseName, semester, year, teacherId) => {
 
 const addStudentInCourse = async (courseId, studentId) => {
   // Add student in course
-  await Course.findByIdAndUpdate(courseId, { '$push': { 'students': { studentId: studentId, classesAttended: [] } } }, { upsert: true })
+  await Course.findByIdAndUpdate(courseId, { '$push': { students: { studentId: studentId, classesAttended: [] } } }, { upsert: true })
 
   // Add course in student
-  await Student.findByIdAndUpdate(studentId, { '$push': { 'attendanceDetails': { courseId: courseId, courseName: courseName } } }, { upsert: true })
-
+  await Student.findByIdAndUpdate(studentId, { '$push': { attendanceDetails: { courseId: courseId, courseName: courseName } } }, { upsert: true })
 
   return true;
 }
@@ -39,6 +40,7 @@ const addTeacher = async (teacherId, password, email, phoneNumber) => {
   await Teacher.findByIdAndUpdate(teacherId, { password: password, email: email, phoneNumber: phoneNumber }, { upsert: true });
 }
 
+// all update data functions
 const changeStudentPassword = async (studentId, password, newPassword) => {
   const studentDetails = await Student.findById(studentId);
   if (!studentDetails || studentDetails['password'] !== password)
@@ -68,7 +70,7 @@ const studentAttendance = async (studentId, courseId, dateAndTime) => {
 
   // increase count in course
   const courseData = await Course.findById(courseId);
-  
+
 }
 
 const teacherAttendance = async (teacherId, courseId, dateAndTime) => {
