@@ -1,30 +1,34 @@
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
+const cors = require('cors');
 const jsonwebtoken = require('jsonwebtoken');
 const { studentRoutes } = require('./routes/student');
+
+app.use(cors())
 const { teacherRoutes } = require('./routes/teacher');
 const { loginResgiterRoutes } = require('./routes/loginRegister');
 const mongoose = require('mongoose')
 
 dotenv.config();
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+		res.setHeader("Access-Control-Allow-Credentials", "true");
+		res.setHeader("Access-Control-Max-Age", "1800");
+		res.setHeader("Access-Control-Allow-Headers", "content-type");
+		res.setHeader("Access-Control-Allow-Methods","PUT, POST, GET, DELETE, PATCH, OPTIONS");
+  next();
+})
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URL)
-  .then(() => { console.log('connected!!') })
-  .catch(() => { console.log('error') });
+.then(() => { console.log('connected!!') })
+.catch(() => { console.log('error') });
 
 const PORT = process.env.PORT;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 
 // tokens validation and sending the id to the next level
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  next();
-})
 
 app.use(loginResgiterRoutes);
 app.use('/student', studentRoutes);

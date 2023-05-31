@@ -8,7 +8,7 @@ const teacherDetails = async (id) => {
 }
 
 const studentDetails = async (id) => {
-  return await Student.findById(id);
+  return await Student.findOne({ userId: id});
 }
 
 const courseDetails = async (id) => {

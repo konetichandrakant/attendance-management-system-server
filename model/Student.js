@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const studentSchema = mongoose.Schema({
+  userId: { type: String, index: true },
   name: { type: String, default: '' },
   password: { type: String, default: '' },
   email: { type: String, default: '' },

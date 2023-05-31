@@ -4,12 +4,14 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const isLoggedIn = (req, res, next) => {
+  console.log(req.headers);
   try {
-    const user = jwt.verify(req.cookies.token, process.env.ACCESS_TOKEN);
-    req['userId'] = user['userId'];
+    const user = jwt.verify(req.headers.authorization, process.env.ACCESS_TOKEN);
+    console.log(user);
+    req['userId']=user['userId'];
+    req['userType']=user['type'];
     next();
   } catch (err) {
-    console.log('not present');
     return res.send(false);
   }
 }

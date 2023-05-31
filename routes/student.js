@@ -3,12 +3,16 @@ const router = express.Router();
 const { studentDetails, courseDetails } = require('../details');
 const { isLoggedIn } = require('../logInValidation');
 
-router.get('/', isLoggedIn, (req, res) => {
+router.get('/', isLoggedIn, async (req, res) => {
+  console.log(req['userId'], 'student')
   const studentId = req['userId'];
-  const studentData = studentDetails(userId);
+
+  const studentData = await studentDetails(studentId);
 
   if (!studentData)
     return res.send(false);
+
+  console.log(studentData)
 
   res.send({ id: studentId, courses: studentData['courses'] });
 })
