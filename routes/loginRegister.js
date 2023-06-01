@@ -33,7 +33,6 @@ router.post('/login', async (req, res) => {
     userId: userId,
     type: type
   }, process.env.ACCESS_TOKEN)
-  console.log(token, 'token');
   res.send({ token: token })
 })
 

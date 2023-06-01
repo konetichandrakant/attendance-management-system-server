@@ -6,6 +6,7 @@ dotenv.config();
 const isLoggedIn = (req, res, next) => {
   try {
     const user = jwt.verify(req.headers.authorization, process.env.ACCESS_TOKEN);
+    console.log(user);
     req['userId'] = user['userId'];
     req['userType'] = user['type'];
     next();

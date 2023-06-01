@@ -8,8 +8,8 @@ router.get('/', isLoggedIn, async (req, res) => {
   const teacherId = req['userId'];
   const teacherData = await teacherDetails(teacherId);
   if (!teacherData)
-    return res.send(false);
-  res.send({ teacherId: teacherId, courses: teacherData['courses'] });
+    return res.send({ valid: false });
+  res.send({ valid: true, teacherId: teacherId, courses: teacherData['courses'] });
 })
 
 router.post('/addcourse', isLoggedIn, async (req, res) => {
@@ -29,8 +29,11 @@ router.get('/:courseId', isLoggedIn, async (req, res) => {
 
   const courseData = await courseDetails(courseId);
 
-  if (!courseData || courseData['teacherId'] !== teacherId)
-    return res.send(false);
+  if (!courseData)
+    return res.send({ valid: false });
+
+  if (courseData['teacherId'] !== teacherId)
+    return res.send({ valid: false, type: 'teacher' });
 
   let data = {
     courseName: courseData['courseName'],
@@ -45,7 +48,7 @@ router.get('/:courseId', isLoggedIn, async (req, res) => {
       data['students'].push({ studentId: courseData['students'][i]['studentId'], noOfClassesAttended: courseData['students'][i]['classesAttended'].length });
   }
 
-  return res.send(data);
+  return res.send({ ...data, valid: true });
 })
 
 router.get('/:courseId/:studentId', isLoggedIn, async (req, res) => {
@@ -56,10 +59,8 @@ router.get('/:courseId/:studentId', isLoggedIn, async (req, res) => {
   const courseData = await courseDetails(courseId);
   let studentData = await studentDetails(studentId);
 
-  if (!courseData || courseData['teacherId'] !== teacherId)
-    return res.send(false);
-
-  console.log(studentData);
+  if (!courseData)
+    return res.send({ valid: false, type: 'teacher' });
 
   if (studentData === null)
     studentData = {};
@@ -69,6 +70,7 @@ router.get('/:courseId/:studentId', isLoggedIn, async (req, res) => {
   for (let i = 0; i < courseData['students'].length; i++) {
     if (courseData['students'][i]['studentId'] === studentId) {
       return res.send({
+        valid: true,
         courseId: courseData['courseId'],
         courseName: courseData['courseName'],
         year: courseData['year'],
@@ -82,7 +84,7 @@ router.get('/:courseId/:studentId', isLoggedIn, async (req, res) => {
       });
     }
   }
-  return res.send(false);
+  return res.send({ valid: false, type: 'teacher' });
 })
 
 module.exports = { teacherRoutes: router };
