@@ -4,17 +4,13 @@ const { studentDetails, courseDetails } = require('../details');
 const { isLoggedIn } = require('../logInValidation');
 
 router.get('/', isLoggedIn, async (req, res) => {
-  console.log(req['userId'], 'student')
   const studentId = req['userId'];
-
   const studentData = await studentDetails(studentId);
 
   if (!studentData)
     return res.send(false);
 
-  console.log(studentData)
-
-  res.send({ id: studentId, courses: studentData['courses'] });
+  res.send({ studentId: studentId, courses: studentData['courses'] });
 })
 
 router.get('/:courseId', isLoggedIn, async (req, res) => {
@@ -28,10 +24,10 @@ router.get('/:courseId', isLoggedIn, async (req, res) => {
     return res.send(false);
 
   for (let i = 0; i < courseData['students'].length; i++) {
-    if (courseData['students'][i] === studentId) {
+    if (courseData['students'][i]['studentId'] === studentId) {
       return res.send({
         courseId: courseData['courseId'],
-        courseName: courseData['name'],
+        courseName: courseData['courseName'],
         year: courseData['year'],
         semester: courseData['semester'],
         teacherId: courseData['teacherId'],
@@ -43,6 +39,7 @@ router.get('/:courseId', isLoggedIn, async (req, res) => {
       });
     }
   }
+
   return res.send(false);
 })
 

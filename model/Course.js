@@ -2,22 +2,18 @@ const mongoose = require('mongoose');
 
 const courseSchema = mongoose.Schema({
   courseId: { type: String, index: true },
-  name: { type: String, default: '' },
+  courseName: { type: String, default: '' },
   year: { type: Number, default: '' },
   semester: { type: Number, default: '' },
   teacherId: { type: String, default: '' },
   teacherName: { type: String, default: '' },
-  classesTaken: {
-    type: [{ type: String }],
-    default: []
-  },
-  students: {
-    type: [{
+  classesTaken: [{ type: String }],
+  students: [
+    {
       studentId: { type: String },
       classesAttended: [{ type: String }]
-    }],
-    default: []
-  }
+    }
+  ]
 })
 
 const Course = mongoose.model('Course', courseSchema);

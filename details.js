@@ -4,32 +4,52 @@ const { Course } = require('./model/Course');
 
 // all get data functions
 const teacherDetails = async (id) => {
-  return await Teacher.findById(id);
+  return await Teacher.findOne({ userId: id });
 }
 
 const studentDetails = async (id) => {
-  return await Student.findOne({ userId: id});
+  return await Student.findOne({ userId: id });
 }
 
 const courseDetails = async (id) => {
-  return await Course.findById(id);
+  return await Course.findOne({ courseId: id });
 }
 
 // all post data functions
 const addCourse = async (courseId, courseName, semester, year, teacherId) => {
-  var course = new Course({ _id: courseId, name: courseName, semester: semester, year: year, teacherId: teacherId, classesTaken: [], students: [] });
+  var course = new Course({ courseId: courseId, courseName: courseName, semester: semester, year: year, teacherId: teacherId, classesTaken: [], students: [] });
   await course.save();
-  return true;
+  var teacherData = await teacherDetails(teacherId);
+  teacherData['courses'].push(courseId);
+  return await Teacher.findOneAndUpdate({ userId: teacherId }, teacherData)
 }
 
 const addStudentInCourse = async (courseId, studentId) => {
   // Add student in course
-  await Course.findByIdAndUpdate(courseId, { '$push': { students: { studentId: studentId, classesAttended: [] } } }, { upsert: true })
+  var courseData = await courseDetails(courseId);
+  courseData['students'].push({ studentId: studentId, classesAttended: [] });
+  await Course.findOneAndUpdate({ courseId: courseId }, courseData, { upsert: true })
 
   // Add course in student
-  await Student.findByIdAndUpdate(studentId, { '$push': { attendanceDetails: { courseId: courseId, courseName: courseName } } }, { upsert: true })
+  var studentData = await studentDetails(studentId);
+  if (studentData === null)
+    studentData = { userId: studentId, courses: [] }
+  studentData['courses'].push(courseId);
+  await Student.findOneAndUpdate({ userId: studentId }, studentData, { upsert: true })
 
-  return true;
+  let data = {
+    courseName: courseData['courseName'],
+    year: courseData['year'],
+    semester: courseData['semester'],
+    classesTaken: courseData['classesTaken'],
+    students: []
+  };
+
+  for (let i = 0; i < courseData['students'].length; i++) {
+    if (courseData['students'][i]['studentId'] !== null)
+      data['students'].push({ studentId: courseData['students'][i]['studentId'], noOfClassesAttended: courseData['students'][i]['classesAttended'].length });
+  }
+  return data;
 }
 
 const addStudent = async (studentId, password, email, phoneNumber) => {
@@ -58,24 +78,24 @@ const changeTeacherPassword = async (teacherId, password, newPassword) => {
 }
 
 const studentAttendance = async (studentId, courseId, dateAndTime) => {
-  // add attendance in student
-  const studentData = await Student.findById(studentId);
-  const course = studentData['attendanceDetails']
-  for (let i = 0; i < course.length; i++) {
-    if (course[i]['courseId'] === courseId) {
-      course[i]['classesAttended'] = [...course[i]['classesAttended'], dateAndTime];
+  // add attendance in course
+  const courseData = await courseDetails(courseId);
+
+  for (let i = 0; i < courseData['courses'].length; i++) {
+    if (courseData['courses'][i]['studentId'] === studentId) {
+      courseData['courses'][i]['classesAttended'].push(dateAndTime);
+      break;
     }
   }
-  Student.findByIdAndUpdate(studentId, { attendanceDetails: course })
 
-  // increase count in course
-  const courseData = await Course.findById(courseId);
-
+  Course.findOneAndUpdate({ courseId: courseId }, courseData);
 }
 
 const teacherAttendance = async (teacherId, courseId, dateAndTime) => {
-  // increase attendance count in teacher
   // add attendance in course
+  const courseData = await courseDetails(courseId);
+  courseData['classesTaken'].push(courseId);
+  Course.findOneAndUpdate({ courseId: courseId }, courseData);
 }
 
 module.exports = { teacherDetails, studentDetails, courseDetails, addCourse, addStudentInCourse, addStudent, addTeacher, changeStudentPassword, changeTeacherPassword };

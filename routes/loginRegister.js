@@ -10,32 +10,31 @@ dotenv.config();
 
 router.post('/login', async (req, res) => {
   const { userId, password, type } = req.body;
-  console.log(req.body);
 
   if (type === 'teacher') {
     try {
-      const userData = await Teacher.findById(userId);
+      const userData = await Teacher.findOne({ userId: userId });
       if (userData === null || userData['password'] !== password)
-        return res.send({ valid: false });
+        return res.send({ token: null });
     } catch {
-      console.log('error');
+      return res.send({ token: null });
     }
   } else {
     try {
       const userData = await Student.findOne({ userId: userId });
       console.log(userData);
       if (userData === null || userData['password'] !== password)
-        return res.send({ valid: false });
+        return res.send({ token: null });
     } catch (error) {
-      console.log(error);
+      return res.send({ token: null });
     }
   }
-  console.log('yes');
   const token = jsonwebtoken.sign({
     userId: userId,
     type: type
   }, process.env.ACCESS_TOKEN)
-  res.send({ token: token, valid: true })
+  console.log(token, 'token');
+  res.send({ token: token })
 })
 
 router.post('/register', (req, res) => {
