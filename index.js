@@ -5,6 +5,7 @@ const cors = require('cors');
 const jsonwebtoken = require('jsonwebtoken');
 const bodyParser = require('body-parser')
 const { studentRoutes } = require('./routes/student');
+const { attendanceRoutes } = require('./routes/attendance');
 
 app.use(cors())
 const { teacherRoutes } = require('./routes/teacher');
@@ -35,6 +36,7 @@ const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 app.use(loginResgiterRoutes);
 app.use('/student', studentRoutes);
 app.use('/teacher', teacherRoutes);
+app.use(attendanceRoutes);
 
 app.listen(PORT, () => {
   console.log(`listening to port ${PORT}...`);
